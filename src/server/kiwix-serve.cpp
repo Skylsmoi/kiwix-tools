@@ -120,12 +120,12 @@ static std::string getMimeTypeForFile(const std::string& filename) {
 
 void introduceTaskbar(string &content, const string &humanReadableBookId) {
   if (!nosearchbarFlag) {
-    content = appendToFirstOccurence(content, "<head>", 
+    content = appendToFirstOccurence(content, "<head>",
 				     replaceRegex(RESOURCE::include_html_part,
 						  humanReadableBookId, "__CONTENT__"));
     content = appendToFirstOccurence(content, "<head>", "<style>" +
 				     RESOURCE::taskbar_css + "</style>");
-    content = appendToFirstOccurence(content, "<body[^>]*>", 
+    content = appendToFirstOccurence(content, "<body[^>]*>",
 				     replaceRegex(RESOURCE::taskbar_html_part,
 						  humanReadableBookId, "__CONTENT__"));
   }
@@ -607,7 +607,7 @@ static int accessHandlerCallback(void *cls,
       const char* tmpGetValue = MHD_lookup_connection_value(connection, MHD_GET_ARGUMENT_KIND, "content");
       humanReadableBookId = (tmpGetValue != NULL ? string(tmpGetValue) : "");
     } else {
-      humanReadableBookId = urlStr.substr(1, urlStr.find("/", 1) != string::npos ? 
+      humanReadableBookId = urlStr.substr(1, urlStr.find("/", 1) != string::npos ?
 					  urlStr.find("/", 1) - 1 : urlStr.size() - 2);
       if (!humanReadableBookId.empty()) {
 	urlStr = urlStr.substr(urlStr.find("/", 1) != string::npos ?
@@ -697,7 +697,7 @@ static int accessHandlerCallback(void *cls,
 			       httpResponseCode,
 			       response);
   MHD_destroy_response(response);
-  
+
   return ret;
 }
 
@@ -792,7 +792,7 @@ int main(int argc, char **argv) {
   if (libraryFlag) {
     vector<string> libraryPaths = kiwix::split(libraryPath, ";");
     vector<string>::iterator itr;
-    
+
     for ( itr = libraryPaths.begin(); itr != libraryPaths.end(); ++itr ) {
       if (!itr->empty()) {
 	bool retVal = false;
@@ -876,23 +876,53 @@ int main(int argc, char **argv) {
   }
 
   /* Compute the Welcome HTML */
-  string welcomeBooksHtml;
+  string welcomeBooksHtml = ""
+"<style>"
+".book {"
+    "display: inline-block; vertical-align: top; margin: 5px; padding: 10px 15px; width: 300px; min-height: 160px; "
+    "border: 1px solid #ccc; border-radius: 15px;"
+    "color: #000; font-size: 13px;"
+"}"
+".book:hover { box-shadow: 2px 2px 5px 0px #ccc}"
+".book__background { background-repeat: no-repeat; background-size: auto; background-position: top right; }"
+".book__title { font-size: 18px; color: #0645ad; }"
+".book__description { padding: 5px 50px 5px 0px; font-size: 15px; }"
+".book__size, .book__date, .book__creator, .book__language, .book__publisher { line-height: 18px; color: #555; }"
+"</style>";
   for (itr = booksIds.begin(); itr != booksIds.end(); ++itr) {
     libraryManager.getBookById(*itr, currentBook);
 
     if (!currentBook.path.empty() && readers.find(currentBook.getHumanReadableIdFromPath()) != readers.end()) {
-      welcomeBooksHtml += "<h3><a href=\"#\">" + currentBook.title + "</a></h3>\n \
-                           <table style=\"overflow-x: hidden; overflow-y: hidden; margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px;\"><tr>\n \
-                             <td style=\"background-repeat: no-repeat; background-image: url(data:" + currentBook.faviconMimeType+ ";base64," + currentBook.favicon + ")\"><div style=\"width: 50px\"></div></td>\n \
-                             <td style=\"width: 100%;\">" + currentBook.description +
-	                       "<br/><table style=\"font-size: small; color: grey; width: 100%;\">" +
-	"<tr><td style=\"width: 50%\">Size: " + kiwix::beautifyFileSize(atoi(currentBook.size.c_str())) + " (" + kiwix::beautifyInteger(atoi(currentBook.articleCount.c_str())) + " articles, " + kiwix::beautifyInteger(atoi(currentBook.mediaCount.c_str())) + " medias)\n \
-                                  </td><td>Date: " + currentBook.date + "</td><td style=\"vertical-align: bottom; width: 20%\" rowspan=\"3\"><form action=\"/" + currentBook.getHumanReadableIdFromPath() + "/\" method=\"GET\"><input style=\"align: right; right: 0px; float:right; width: 100%; height: 60px; font-weight: bold;\" type=\"submit\" value=\"Load\" /></form></td></tr>\n \
-                                  <tr><td>Author: " + currentBook.creator + "</td><td>Language: " + currentBook.language + "</td></tr>\n \
-                                  <tr><td>Publisher: " + (currentBook.publisher.empty() ? "unknown" :  currentBook.publisher ) + "</td><td></td></tr>\n \
-                                </table>\n \
-                             </td></tr>\n \
-                            </table>\n\n";
+ //      welcomeBooksHtml += "<h3><a href=\"#\">" + currentBook.title + "</a></h3>\n \
+ //                           <table style=\"overflow-x: hidden; overflow-y: hidden; margin-top: 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px;\"><tr>\n \
+ //                             <td style=\"background-repeat: no-repeat; background-image: url(data:" + currentBook.faviconMimeType+ ";base64," + currentBook.favicon + ")\"><div style=\"width: 50px\"></div></td>\n \
+ //                             <td style=\"width: 100%;\">" + currentBook.description +
+	//                        "<br/><table style=\"font-size: small; color: grey; width: 100%;\">" +
+	// "<tr><td style=\"width: 50%\">Size: " + kiwix::beautifyFileSize(atoi(currentBook.size.c_str())) + " (" + kiwix::beautifyInteger(atoi(currentBook.articleCount.c_str())) + " articles, " + kiwix::beautifyInteger(atoi(currentBook.mediaCount.c_str())) + " medias)\n \
+ //                                  </td><td>Date: " + currentBook.date + "</td><td style=\"vertical-align: bottom; width: 20%\" rowspan=\"3\"><form action=\"/" + currentBook.getHumanReadableIdFromPath() + "/\" method=\"GET\"><input style=\"align: right; right: 0px; float:right; width: 100%; height: 60px; font-weight: bold;\" type=\"submit\" value=\"Load\" /></form></td></tr>\n \
+ //                                  <tr><td>Author: " + currentBook.creator + "</td><td>Language: " + currentBook.language + "</td></tr>\n \
+ //                                  <tr><td>Publisher: " + (currentBook.publisher.empty() ? "unknown" :  currentBook.publisher ) + "</td><td></td></tr>\n \
+ //                                </table>\n \
+ //                             </td></tr>\n \
+ //                            </table>\n\n";
+
+        welcomeBooksHtml += ""
+"<a href='/" + currentBook.getHumanReadableIdFromPath() + "/'>"
+    "<div class='book'>"
+        "<div class='book__background' style='background-image: url(data:" + currentBook.faviconMimeType+ ";base64," + currentBook.favicon + ");'>"
+            "<div class='book__title'>" + currentBook.title + "</div>"
+            "<div class='book__description'>" + currentBook.description + "</div>"
+            "<div class='book__size'>"
+                "Size: " + kiwix::beautifyFileSize(atoi(currentBook.size.c_str())) +
+                " (" + kiwix::beautifyInteger(atoi(currentBook.articleCount.c_str())) + " articles, " + kiwix::beautifyInteger(atoi(currentBook.mediaCount.c_str())) + " medias)"
+            "</div>"
+            "<div class='book__date'>Date: " + currentBook.date + "</div>"
+            "<div class='book__creator'>Author: " + currentBook.creator + "</div>"
+            "<div class='book__language'>Language: " + currentBook.language + "</div>"
+            "<div class='book__publisher'>Publisher: " + (currentBook.publisher.empty() ? "unknown" :  currentBook.publisher ) + "</div>"
+        "</div>"
+    "</div>"
+"</a>";
     }
   }
   welcomeHTML = replaceRegex(RESOURCE::home_html_tmpl, welcomeBooksHtml, "__BOOKS__");
@@ -924,7 +954,7 @@ int main(int argc, char **argv) {
   pthread_mutex_init(&compressorLock, NULL);
   pthread_mutex_init(&verboseFlagLock, NULL);
   pthread_mutex_init(&mimeTypeLock, NULL);
-  
+
   /* Hard coded mimetypes */
   extMimeTypes["html"] = "text/html";
   extMimeTypes["htm"]  = "text/html";
@@ -945,7 +975,7 @@ int main(int argc, char **argv) {
   extMimeTypes["ttf"]  = "application/font-ttf";
   extMimeTypes["woff"] = "application/font-woff";
   extMimeTypes["vtt"]  = "text/vtt";
-  
+
   /* Start the HTTP daemon */
   void *page = NULL;
   if (interface.length() > 0) {
